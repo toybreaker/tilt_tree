@@ -1,281 +1,452 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gravity Tree</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #228B22 100%);
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        #container {
-            position: relative;
-            width: 90vw;
-            height: 80vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        #tree-wrapper {
-            transform-origin: bottom center;
-            /* Natural tree swaying animation with longer duration and elastic easing */
-            transition: transform 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            will-change: transform;
-        }
-
-        #tree {
-            width: 300px;
-            height: 450px;
-        }
-
-        #permission-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 30px;
-            font-size: 18px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 100;
-        }
-
-        #permission-btn:hover {
-            background: #45a049;
-        }
-
-        #info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            max-width: 250px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        #debug {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
-            display: none;
-        }
-
-        .show-debug #debug {
-            display: block;
-        }
-
-        /* Add subtle shadow for depth */
-        #tree-shadow {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 40px;
-            background: radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%);
-            transition: transform 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-    </style>
-</head>
-<body>
-    <div id="container">
-        <div id="info">
-            🌳 <strong>Gravity Tree</strong><br>
-            Tilt your phone and watch the tree stay vertical, just like in nature!<br>
-            <small>Tap screen to toggle debug info</small>
-        </div>
-        
-        <button id="permission-btn">Enable Motion Sensors</button>
-        
-        <div id="tree-wrapper">
-            <svg id="tree" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
-                <!-- Tree trunk -->
-                <rect x="130" y="350" width="40" height="100" fill="#8B4513">
-                    <animate attributeName="width" values="40;41;40" dur="4s" repeatCount="indefinite"/>
-                </rect>
-                
-                <!-- Tree roots -->
-                <path d="M150 450 L120 430 M150 450 L180 430 M150 450 L150 420" 
-                      stroke="#654321" stroke-width="5" fill="none" stroke-linecap="round"/>
-                
-                <!-- Tree crown layers (bottom to top) -->
-                <ellipse cx="150" cy="320" rx="70" ry="50" fill="#228B22" opacity="0.9">
-                    <animate attributeName="rx" values="70;72;70" dur="3s" repeatCount="indefinite"/>
-                </ellipse>
-                
-                <ellipse cx="150" cy="270" rx="65" ry="55" fill="#2E7D32" opacity="0.9">
-                    <animate attributeName="ry" values="55;57;55" dur="3.5s" repeatCount="indefinite"/>
-                </ellipse>
-                
-                <ellipse cx="150" cy="220" rx="60" ry="50" fill="#388E3C" opacity="0.9">
-                    <animate attributeName="rx" values="60;62;60" dur="4s" repeatCount="indefinite"/>
-                </ellipse>
-                
-                <ellipse cx="150" cy="170" rx="55" ry="45" fill="#43A047" opacity="0.9">
-                    <animate attributeName="ry" values="45;47;45" dur="3.2s" repeatCount="indefinite"/>
-                </ellipse>
-                
-                <ellipse cx="150" cy="120" rx="45" ry="40" fill="#4CAF50" opacity="0.9">
-                    <animate attributeName="rx" values="45;46;45" dur="3.8s" repeatCount="indefinite"/>
-                </ellipse>
-                
-                <ellipse cx="150" cy="80" rx="35" ry="35" fill="#66BB6A" opacity="0.9">
-                    <animate attributeName="r" values="35;36;35" dur="4.2s" repeatCount="indefinite"/>
-                </ellipse>
-                
-                <!-- Tree top -->
-                <circle cx="150" cy="50" r="25" fill="#81C784" opacity="0.9">
-                    <animate attributeName="r" values="25;26;25" dur="3.6s" repeatCount="indefinite"/>
-                </circle>
-                
-                <!-- Decorative elements -->
-                <circle cx="120" cy="200" r="8" fill="#D32F2F" opacity="0.8"/>
-                <circle cx="180" cy="250" r="8" fill="#D32F2F" opacity="0.8"/>
-                <circle cx="160" cy="150" r="8" fill="#FFC107" opacity="0.8"/>
-                <circle cx="130" cy="100" r="8" fill="#FFC107" opacity="0.8"/>
-                <circle cx="170" cy="300" r="8" fill="#FF5722" opacity="0.8"/>
-            </svg>
-            <div id="tree-shadow"></div>
-        </div>
-        
-        <div id="debug">
-            <div>Rotation: <span id="rotation">0</span>°</div>
-            <div>Device Gamma: <span id="gamma">0</span>°</div>
-            <div>Smoothed: <span id="smoothed">0</span>°</div>
-        </div>
-    </div>
-
-    <script>
-        let currentRotation = 0;
-        let targetRotation = 0;
-        let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        let permissionGranted = false;
-        let rotationHistory = [];
-        const maxHistory = 5; // Store last 5 values for smoothing
-
-        const treeWrapper = document.getElementById('tree-wrapper');
-        const permissionBtn = document.getElementById('permission-btn');
-        const debugRotation = document.getElementById('rotation');
-        const debugGamma = document.getElementById('gamma');
-        const debugSmoothed = document.getElementById('smoothed');
-        const shadow = document.getElementById('tree-shadow');
-
-        // Toggle debug mode
-        document.body.addEventListener('click', (e) => {
-            if (e.target !== permissionBtn) {
-                document.body.classList.toggle('show-debug');
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gravity Tree</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-        });
 
-        // Smooth rotation values using moving average
-        function smoothRotation(value) {
-            rotationHistory.push(value);
-            if (rotationHistory.length > maxHistory) {
-                rotationHistory.shift();
+            body {
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: linear-gradient(
+                    to bottom,
+                    #87ceeb 0%,
+                    #87ceeb 60%,
+                    #90ee90 60%,
+                    #228b22 100%
+                );
+                overflow: hidden;
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    sans-serif;
             }
-            const avg = rotationHistory.reduce((a, b) => a + b, 0) / rotationHistory.length;
-            return avg;
-        }
 
-        // Handle device orientation
-        function handleOrientation(event) {
-            // Gamma represents the left-to-right tilt (-90 to 90 degrees)
-            let gamma = event.gamma;
-            
-            // Clamp gamma to reasonable values (-45 to 45 degrees)
-            gamma = Math.max(-45, Math.min(45, gamma));
-            
-            // Apply smoothing
-            const smoothedGamma = smoothRotation(gamma);
-            
-            // Invert the rotation to keep tree vertical
-            // Add subtle sway by not fully compensating (multiply by 0.85)
-            targetRotation = -smoothedGamma * 0.85;
-            
-            // Apply rotation with natural physics
-            treeWrapper.style.transform = `rotate(${targetRotation}deg)`;
-            
-            // Update shadow position for realism
-            const shadowOffset = smoothedGamma * 2;
-            shadow.style.transform = `translateX(calc(-50% + ${shadowOffset}px)) scaleX(${1 - Math.abs(smoothedGamma) / 90})`;
-            
-            // Update debug info
-            debugRotation.textContent = targetRotation.toFixed(1);
-            debugGamma.textContent = gamma.toFixed(1);
-            debugSmoothed.textContent = smoothedGamma.toFixed(1);
-        }
+            #container {
+                position: relative;
+                width: 88svw;
+                height: 88svh;
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+            }
 
-        // Initialize orientation listening
-        function initOrientation() {
-            if (window.DeviceOrientationEvent) {
-                // iOS 13+ requires permission
-                if (isIOS && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    permissionBtn.style.display = 'block';
-                    permissionBtn.addEventListener('click', () => {
-                        DeviceOrientationEvent.requestPermission()
-                            .then(response => {
-                                if (response === 'granted') {
-                                    permissionGranted = true;
-                                    permissionBtn.style.display = 'none';
-                                    window.addEventListener('deviceorientation', handleOrientation);
-                                } else {
-                                    alert('Permission denied. The tree won\'t respond to device motion.');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error requesting permission:', error);
-                                alert('Error requesting permission. Please try again.');
-                            });
-                    });
-                } else {
-                    // Non-iOS or older iOS
-                    window.addEventListener('deviceorientation', handleOrientation);
+            #tree-wrapper {
+                transform-origin: bottom center;
+                /* Natural tree swaying animation with longer duration and elastic easing */
+                transition: transform 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                will-change: transform;
+            }
+
+            #tree {
+                width: 300px;
+                height: 450px;
+            }
+
+            #permission-btn {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 15px 30px;
+                font-size: 18px;
+                background: #4caf50;
+                color: white;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                display: none;
+                z-index: 100;
+            }
+
+            #permission-btn:hover {
+                background: #45a049;
+            }
+
+            #info {
+                position: absolute;
+                top: 0;
+                left: 3svh;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 2.75svh;
+                border-radius: 1svh;
+                font-size: 2.25svh;
+                max-width: 80dvw;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            small {
+                padding-top: 1.75svh;
+                display: block;
+            }
+
+            #debug {
+                position: absolute;
+                bottom: 53.5svh;
+                left: 3svh;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 2.75svh;
+                border-radius: 1svh;
+                font-family: monospace;
+                font-size: 18px;
+                display: none;
+            }
+
+            .show-debug #debug {
+                display: block;
+            }
+
+            /* Add subtle shadow for depth */
+            #tree-shadow {
+                position: absolute;
+                bottom: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 200px;
+                height: 40px;
+                background: radial-gradient(
+                    ellipse at center,
+                    rgba(0, 0, 0, 0.3) 0%,
+                    transparent 70%
+                );
+                transition: transform 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="info">
+                <strong>GRAVITY TREE</strong><br />
+                Tilt phone + watch tree trying to stay vertical
+                <span>WELL, KINDA!</span>
+                <small>Tap screen to toggle debug info</small>
+            </div>
+
+            <button id="permission-btn">Enable Motion Sensors</button>
+
+            <div id="tree-wrapper">
+                <svg
+                    id="tree"
+                    viewBox="0 0 300 450"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <!-- Tree trunk -->
+                    <rect
+                        x="130"
+                        y="350"
+                        width="40"
+                        height="100"
+                        fill="#8B4513"
+                    >
+                        <animate
+                            attributeName="width"
+                            values="40;41;40"
+                            dur="4s"
+                            repeatCount="indefinite"
+                        />
+                    </rect>
+
+                    <!-- Tree roots -->
+                    <path
+                        d="M150 450 L120 430 M150 450 L180 430 M150 450 L150 420"
+                        stroke="#654321"
+                        stroke-width="5"
+                        fill="none"
+                        stroke-linecap="round"
+                    />
+
+                    <!-- Tree crown layers (bottom to top) -->
+                    <ellipse
+                        cx="150"
+                        cy="320"
+                        rx="70"
+                        ry="50"
+                        fill="#228B22"
+                        opacity="0.9"
+                    >
+                        <animate
+                            attributeName="rx"
+                            values="70;72;70"
+                            dur="3s"
+                            repeatCount="indefinite"
+                        />
+                    </ellipse>
+
+                    <ellipse
+                        cx="150"
+                        cy="270"
+                        rx="65"
+                        ry="55"
+                        fill="#2E7D32"
+                        opacity="0.9"
+                    >
+                        <animate
+                            attributeName="ry"
+                            values="55;57;55"
+                            dur="3.5s"
+                            repeatCount="indefinite"
+                        />
+                    </ellipse>
+
+                    <ellipse
+                        cx="150"
+                        cy="220"
+                        rx="60"
+                        ry="50"
+                        fill="#388E3C"
+                        opacity="0.9"
+                    >
+                        <animate
+                            attributeName="rx"
+                            values="60;62;60"
+                            dur="4s"
+                            repeatCount="indefinite"
+                        />
+                    </ellipse>
+
+                    <ellipse
+                        cx="150"
+                        cy="170"
+                        rx="55"
+                        ry="45"
+                        fill="#43A047"
+                        opacity="0.9"
+                    >
+                        <animate
+                            attributeName="ry"
+                            values="45;47;45"
+                            dur="3.2s"
+                            repeatCount="indefinite"
+                        />
+                    </ellipse>
+
+                    <ellipse
+                        cx="150"
+                        cy="120"
+                        rx="45"
+                        ry="40"
+                        fill="#4CAF50"
+                        opacity="0.9"
+                    >
+                        <animate
+                            attributeName="rx"
+                            values="45;46;45"
+                            dur="3.8s"
+                            repeatCount="indefinite"
+                        />
+                    </ellipse>
+
+                    <ellipse
+                        cx="150"
+                        cy="80"
+                        rx="35"
+                        ry="35"
+                        fill="#66BB6A"
+                        opacity="0.9"
+                    >
+                        <animate
+                            attributeName="r"
+                            values="35;36;35"
+                            dur="4.2s"
+                            repeatCount="indefinite"
+                        />
+                    </ellipse>
+
+                    <!-- Tree top -->
+                    <circle
+                        cx="150"
+                        cy="50"
+                        r="25"
+                        fill="#81C784"
+                        opacity="0.9"
+                    >
+                        <animate
+                            attributeName="r"
+                            values="25;26;25"
+                            dur="3.6s"
+                            repeatCount="indefinite"
+                        />
+                    </circle>
+
+                    <!-- Decorative elements -->
+                    <circle
+                        cx="120"
+                        cy="200"
+                        r="8"
+                        fill="#D32F2F"
+                        opacity="0.8"
+                    />
+                    <circle
+                        cx="180"
+                        cy="250"
+                        r="8"
+                        fill="#D32F2F"
+                        opacity="0.8"
+                    />
+                    <circle
+                        cx="160"
+                        cy="150"
+                        r="8"
+                        fill="#FFC107"
+                        opacity="0.8"
+                    />
+                    <circle
+                        cx="130"
+                        cy="100"
+                        r="8"
+                        fill="#FFC107"
+                        opacity="0.8"
+                    />
+                    <circle
+                        cx="170"
+                        cy="300"
+                        r="8"
+                        fill="#FF5722"
+                        opacity="0.8"
+                    />
+                </svg>
+                <div id="tree-shadow"></div>
+            </div>
+
+            <div id="debug">
+                <div>Rotation: <span id="rotation">0</span>°</div>
+                <div>Device Gamma: <span id="gamma">0</span>°</div>
+                <div>Smoothed: <span id="smoothed">0</span>°</div>
+            </div>
+        </div>
+
+        <script>
+            let currentRotation = 0;
+            let targetRotation = 0;
+            let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            let permissionGranted = false;
+            let rotationHistory = [];
+            const maxHistory = 5; // Store last 5 values for smoothing
+
+            const treeWrapper = document.getElementById("tree-wrapper");
+            const permissionBtn = document.getElementById("permission-btn");
+            const debugRotation = document.getElementById("rotation");
+            const debugGamma = document.getElementById("gamma");
+            const debugSmoothed = document.getElementById("smoothed");
+            const shadow = document.getElementById("tree-shadow");
+
+            // Toggle debug mode
+            document.body.addEventListener("click", (e) => {
+                if (e.target !== permissionBtn) {
+                    document.body.classList.toggle("show-debug");
                 }
-            } else {
-                alert('Device orientation is not supported on this device/browser.');
-            }
-        }
+            });
 
-        // Start the app
-        initOrientation();
-
-        // Add keyboard controls for testing on desktop
-        document.addEventListener('keydown', (e) => {
-            let testGamma = 0;
-            if (e.key === 'ArrowLeft') testGamma = -30;
-            if (e.key === 'ArrowRight') testGamma = 30;
-            if (testGamma !== 0) {
-                handleOrientation({ gamma: testGamma });
+            // Smooth rotation values using moving average
+            function smoothRotation(value) {
+                rotationHistory.push(value);
+                if (rotationHistory.length > maxHistory) {
+                    rotationHistory.shift();
+                }
+                const avg =
+                    rotationHistory.reduce((a, b) => a + b, 0) /
+                    rotationHistory.length;
+                return avg;
             }
-        });
-    </script>
-</body>
+
+            // Handle device orientation
+            function handleOrientation(event) {
+                // Gamma represents the left-to-right tilt (-90 to 90 degrees)
+                let gamma = event.gamma;
+
+                // Clamp gamma to reasonable values (-45 to 45 degrees)
+                gamma = Math.max(-45, Math.min(45, gamma));
+
+                // Apply smoothing
+                const smoothedGamma = smoothRotation(gamma);
+
+                // Invert the rotation to keep tree vertical
+                // Add subtle sway by not fully compensating (multiply by 0.85)
+                targetRotation = -smoothedGamma * 0.85;
+
+                // Apply rotation with natural physics
+                treeWrapper.style.transform = `rotate(${targetRotation}deg)`;
+
+                // Update shadow position for realism
+                const shadowOffset = smoothedGamma * 2;
+                shadow.style.transform = `translateX(calc(-50% + ${shadowOffset}px)) scaleX(${1 - Math.abs(smoothedGamma) / 90})`;
+
+                // Update debug info
+                debugRotation.textContent = targetRotation.toFixed(1);
+                debugGamma.textContent = gamma.toFixed(1);
+                debugSmoothed.textContent = smoothedGamma.toFixed(1);
+            }
+
+            // Initialize orientation listening
+            function initOrientation() {
+                if (window.DeviceOrientationEvent) {
+                    // iOS 13+ requires permission
+                    if (
+                        isIOS &&
+                        typeof DeviceOrientationEvent.requestPermission ===
+                            "function"
+                    ) {
+                        permissionBtn.style.display = "block";
+                        permissionBtn.addEventListener("click", () => {
+                            DeviceOrientationEvent.requestPermission()
+                                .then((response) => {
+                                    if (response === "granted") {
+                                        permissionGranted = true;
+                                        permissionBtn.style.display = "none";
+                                        window.addEventListener(
+                                            "deviceorientation",
+                                            handleOrientation,
+                                        );
+                                    } else {
+                                        alert(
+                                            "Permission denied. The tree won't respond to device motion.",
+                                        );
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error(
+                                        "Error requesting permission:",
+                                        error,
+                                    );
+                                    alert(
+                                        "Error requesting permission. Please try again.",
+                                    );
+                                });
+                        });
+                    } else {
+                        // Non-iOS or older iOS
+                        window.addEventListener(
+                            "deviceorientation",
+                            handleOrientation,
+                        );
+                    }
+                } else {
+                    alert(
+                        "Device orientation is not supported on this device/browser.",
+                    );
+                }
+            }
+
+            // Start the app
+            initOrientation();
+
+            // Add keyboard controls for testing on desktop
+            document.addEventListener("keydown", (e) => {
+                let testGamma = 0;
+                if (e.key === "ArrowLeft") testGamma = -30;
+                if (e.key === "ArrowRight") testGamma = 30;
+                if (testGamma !== 0) {
+                    handleOrientation({ gamma: testGamma });
+                }
+            });
+        </script>
+    </body>
 </html>
